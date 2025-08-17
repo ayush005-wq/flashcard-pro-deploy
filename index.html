@@ -956,6 +956,7 @@ const quizModeBtn = document.getElementById('quizModeBtn');
 const calGrid = document.getElementById('calGrid');
 const calMonthLabel = document.getElementById('calMonthLabel');
 
+const API_BASE = window.location.origin;
 /* ================== Tab System ================== */
 document.querySelectorAll('.tab').forEach(tab => {
   tab.addEventListener('click', () => {
@@ -1319,7 +1320,7 @@ async function categorizeWithAI(questionText, answerText) {
     }
 
     // Otherwise, call backend AI categorizer
-    const response = await fetch("/api/categorize", {
+    const response = await fetch("${API_BASE}/api/categorize", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -1725,7 +1726,7 @@ createSetBtn.onclick = async () => {
           }
           aEl.value = "Summarizing... please wait ⏳";
           try {
-            const resp = await fetch("/summarize", {
+            const resp = await fetch("${API_BASE}/summarize", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ text: llmText })
