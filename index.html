@@ -1320,7 +1320,7 @@ async function categorizeWithAI(questionText, answerText) {
     }
 
     // Otherwise, call backend AI categorizer
-    const response = await fetch("${API_BASE}/api/categorize", {
+    const response = await fetch(`${API_BASE}/api/categorize`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -1726,7 +1726,7 @@ createSetBtn.onclick = async () => {
           }
           aEl.value = "Summarizing... please wait ⏳";
           try {
-            const resp = await fetch("${API_BASE}/summarize", {
+            const resp = await fetch(`${API_BASE}/summarize`, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ text: llmText })
