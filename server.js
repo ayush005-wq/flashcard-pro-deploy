@@ -2,33 +2,19 @@
 import express from "express";
 import fetch from "node-fetch";
 import cors from "cors";
-// If you need SPA fallback, uncomment below:
-// import path from "path";
-// import { fileURLToPath } from "url";
-// const __filename = fileURLToPath(import.meta.url);
-// const __dirname = path.dirname(__filename);
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-import path from "path";
-import { fileURLToPath } from "url";
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-// Serve static files from the project root
-app.use(express.static(path.join(__dirname)));
-
-// Send index.html for any other requests
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "index.html"));
-});
-
-
 const OPENROUTER_KEY = process.env.OPENROUTER_KEY;
 
-// ----------- APIs -----------
+// ----------- API Routes (Define these first) -----------
 app.post("/summarize", async (req, res) => {
   const { text } = req.body;
   if (!text) return res.status(400).json({ error: "Missing text" });
@@ -97,18 +83,27 @@ app.post("/api/categorize", async (req, res) => {
   }
 });
 
-// ----------- Optional: serve frontend -------------
-// If your index.html is in a folder named 'public':
-// app.use(express.static("public"));
+// ----------- Frontend Serving (Define after API routes) -----------
 
-// If your index.html is at the main project root:
-// app.use(express.static("."));
+// Choose one of the two options below based on where your index.html is
 
-// For Single-Page App routing (optional), place after API routes:
-// app.get("*", (req, res) => res.sendFile(path.join(__dirname, "public/index.html")));
+// Option 1: If your frontend files are in a 'public' folder
+app.use(express.static(path.join(__dirname, 'public')));
+app.get('/*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
 
-const PORT = process.env.PORT || 3000;
+// Option 2: If your frontend files are in the main project root
+// app.use(express.static(path.join(__dirname)));
+// app.get('/*', (req, res) => {
+//   res.sendFile(path.join(__dirname, 'index.html'));
+// });
+
+
+// ----------- Start Server -----------
+const PORT = process.env.PORT || 10000;
 const HOST = "0.0.0.0";
 app.listen(PORT, HOST, () => {
   console.log(`✅ Server running on http://${HOST}:${PORT}`);
 });
+
