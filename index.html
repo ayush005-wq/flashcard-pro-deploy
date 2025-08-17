@@ -1320,7 +1320,7 @@ async function categorizeWithAI(questionText, answerText) {
     }
 
     // Otherwise, call backend AI categorizer
-    const response = await fetch(`${API_BASE}/api/categorize`, {
+    const response = await fetch('/api/categorize', {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -1725,19 +1725,22 @@ createSetBtn.onclick = async () => {
             return;
           }
           aEl.value = "Summarizing... please wait ⏳";
-          try {
-            const resp = await fetch(`${API_BASE}/summarize`, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ text: llmText })
-            });
-            if (!resp.ok) throw new Error(await resp.text() || 'Server error');
-            const data = await resp.json();
-            aEl.value = stripMarkdown(data.summary || '');
-          } catch (error) {
-            console.error(error);
-            aEl.value = "⚠️ Error generating summary.";
-          }
+          // --- Start of Replacement Block ---
+try {
+  const resp = await fetch("/summarize", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ text: llmText })
+  });
+  if (!resp.ok) throw new Error(await resp.text() || 'Server error');
+  const data = await resp.json();
+  aEl.value = stripMarkdown(data.summary || '');
+} catch (error) {
+  console.error(error);
+  aEl.value = "⚠️ Error generating summary.";
+}
+// --- End of Replacement Block ---
+
         });
       }
     });
@@ -2966,6 +2969,7 @@ function emptyWorkArea(){
 })();
 
 </script>
+<!--
 <script>
 // Register service worker for PWA functionality
 if ('serviceWorker' in navigator) {
@@ -2993,5 +2997,6 @@ if ('serviceWorker' in navigator) {
   });
 }
 </script>
+-->
 </body>
 </html>
