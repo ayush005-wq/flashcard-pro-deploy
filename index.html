@@ -1725,7 +1725,7 @@ createSetBtn.onclick = async () => {
           }
           aEl.value = "Summarizing... please wait ⏳";
           try {
-            const resp = await fetch("http://localhost:3000/summarize", {
+            const resp = await fetch("/summarize", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ text: llmText })
