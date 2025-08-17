@@ -14,7 +14,7 @@ app.use(express.json());
 
 const OPENROUTER_KEY = process.env.OPENROUTER_KEY;
 
-// ----------- API Routes (Define these first) -----------
+// ----------- API Routes -----------
 app.post("/summarize", async (req, res) => {
   const { text } = req.body;
   if (!text) return res.status(400).json({ error: "Missing text" });
@@ -83,26 +83,15 @@ app.post("/api/categorize", async (req, res) => {
   }
 });
 
-// ----------- Frontend Serving (Define after API routes) -----------
+// ----------- Serve frontend from repo root -----------
+app.use(express.static(path.join(__dirname)));
 
-// Choose one of the two options below based on where your index.html is
-
-// Option 1: If your frontend files are in a 'public' folder
-app.use(express.static(path.join(__dirname, 'public')));
-app.get('/*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+app.get("/*", (req, res) => {
+  res.sendFile(path.join(__dirname, "index.html"));
 });
-
-// Option 2: If your frontend files are in the main project root
-// app.use(express.static(path.join(__dirname)));
-// app.get('/*', (req, res) => {
-//   res.sendFile(path.join(__dirname, 'index.html'));
-// });
-
 
 // ----------- Start Server -----------
 const PORT = process.env.PORT || 10000;
-const HOST = "0.0.0.0";
-app.listen(PORT, HOST, () => {
-  console.log(`✅ Server running on http://${HOST}:${PORT}`);
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`✅ Server running on http://0.0.0.0:${PORT}`);
 });
