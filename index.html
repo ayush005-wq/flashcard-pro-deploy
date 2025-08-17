@@ -1726,19 +1726,40 @@ createSetBtn.onclick = async () => {
           }
           aEl.value = "Summarizing... please wait ⏳";
           // --- Start of Replacement Block ---
+// --- Start of Replacement Block ---
 try {
   const resp = await fetch("/summarize", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ text: llmText })
   });
-  if (!resp.ok) throw new Error(await resp.text() || 'Server error');
+
+  // If the server responded with an error (like 502, 400, etc.)
+  if (!resp.ok) {
+    const errorText = await resp.text().catch(() => "Could not get error details.");
+    aEl.value = `⚠️ Server Error ${resp.status}: ${errorText}`;
+    console.error("Server responded with an error:", resp.status, errorText);
+    return; // Stop here
+  }
+
+  // If the server responded successfully, get the JSON data
   const data = await resp.json();
-  aEl.value = stripMarkdown(data.summary || '');
+  const summary = data?.summary?.trim() || "";
+
+  // Check if the summary is empty
+  if (!summary) {
+    aEl.value = "⚠️ AI returned an empty summary.";
+  } else {
+    aEl.value = stripMarkdown(summary);
+  }
+
 } catch (error) {
-  console.error(error);
-  aEl.value = "⚠️ Error generating summary.";
+  // This catches network errors (e.g., can't connect)
+  console.error("Fetch failed:", error);
+  aEl.value = `⚠️ Network request failed: ${error.message}`;
 }
+// --- End of Replacement Block ---
+
 // --- End of Replacement Block ---
 
         });

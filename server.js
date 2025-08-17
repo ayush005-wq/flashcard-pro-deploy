@@ -12,51 +12,23 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const OPENROUTER_KEY = process.env.OPENROUTER_KEY;
-
 // ----------- API Routes -----------
 app.post("/summarize", async (req, res) => {
-  const { text } = req.body;
-  if (!text) return res.status(400).json({ error: "Missing text" });
+  const { text } = req.body || {};
 
-  try {
-    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${OPENROUTER_KEY}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        model: "meta-llama/llama-3.2-3b-instruct:free",
-        messages: [
-          {
-            role: "system",
-            content:
-              "You are an AI assistant that summarizes long banking/economy current affairs text into Indian exam-oriented short notes. Try to make them ~100 words if possible, minimum 50. Include definitions or related Indian concepts and examples when relevant."
-          },
-          { role: "user", content: text }
-        ]
-      })
-    });
-
-    const data = await response.json();
-    const aiSummary = data.choices?.[0]?.message?.content || null;
-    res.json({ summary: aiSummary });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Failed to generate summary" });
+  if (!text || !text.trim()) {
+    return res.status(400).json({ error: "Missing text" });
   }
-});
-
-app.post("/api/categorize", async (req, res) => {
-  const { question, answer } = req.body;
-  if (!question || !answer) return res.status(400).json({ error: "Missing question/answer" });
+  if (!process.env.OPENROUTER_KEY) {
+    console.error("FATAL: OPENROUTER_KEY environment variable is not set!");
+    return res.status(500).json({ error: "Server is not configured" });
+  }
 
   try {
     const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${OPENROUTER_KEY}`,
+        Authorization: `Bearer ${process.env.OPENROUTER_KEY}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
@@ -64,11 +36,54 @@ app.post("/api/categorize", async (req, res) => {
         messages: [
           {
             role: "system",
-            content: "You are an assistant that categorizes flashcards into one of: Reports, Economics, Finance & Management, RBI, SEBI, Others."
+            content: "You are an AI assistant that summarizes long banking/economy current affairs text into Indian exam-oriented short notes. Try to make them ~100 words if possible, minimum 50. Include definitions or related Indian concepts and examples when relevant.",
+          },
+          { role: "user", content: text },
+        ],
+      }),
+    });
+
+    if (!response.ok) {
+      const errText = await response.text().catch(() => "Could not read error body.");
+      console.error("OpenRouter API Error:", response.status, errText);
+      return res.status(502).send(errText || "Upstream API error");
+    }
+
+    const data = await response.json();
+    const summary = data?.choices?.[0]?.message?.content?.trim() || "";
+    res.json({ summary: summary });
+  } catch (e) {
+    console.error("Internal Server Error in /summarize:", e);
+    res.status(500).json({ error: "Failed to process summary request" });
+  }
+});
+
+app.post("/api/categorize", async (req, res) => {
+  const { question, answer } = req.body;
+  if (!question || !answer) return res.status(400).json({ error: "Missing question/answer" });
+  // Add OPENROUTER_KEY check here as well for consistency
+  if (!process.env.OPENROUTER_KEY) {
+    console.error("FATAL: OPENROUTER_KEY environment variable is not set!");
+    return res.status(500).json({ error: "Server is not configured" });
+  }
+
+  try {
+    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${process.env.OPENROUTER_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "meta-llama/llama-3.2-3b-instruct:free",
+        messages: [
+          {
+            role: "system",
+            content: "You are an assistant that categorizes flashcards into one of: Reports, Economics, Finance & Management, RBI, SEBI, Others.",
           },
           {
             role: "user",
-            content: `Question: ${question}\nAnswer: ${answer}\n\nReturn only the category name.`
+            content: `Question: ${question}\nAnswer: ${answer}\n\nReturn only the category name.`,
           },
         ],
       }),
