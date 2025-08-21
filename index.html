@@ -874,6 +874,14 @@ label{color:var(--muted)}
   <div id="modalRoot" style="display:none"></div>
 
 <script>
+if (performance.memory) {
+  console.log("JS Heap Size Limit (MB):", (performance.memory.jsHeapSizeLimit / 1024 / 1024).toFixed(2));
+  console.log("Total Heap Size (MB):", (performance.memory.totalJSHeapSize / 1024 / 1024).toFixed(2));
+  console.log("Used Heap Size (MB):", (performance.memory.usedJSHeapSize / 1024 / 1024).toFixed(2));
+} else {
+  console.log("performance.memory API not supported in this browser.");
+}
+
 /* ================== Setup Firebase ================== */
 const firebaseConfig = {
   apiKey: "AIzaSyDBQZZerHyXkYm-dww6Sqs60P1-y9Yz2yE",
