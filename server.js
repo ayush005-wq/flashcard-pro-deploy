@@ -12,6 +12,12 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+setInterval(() => {
+  const mem = process.memoryUsage();
+  console.log("🔍 Server RAM (RSS MB):", (mem.rss / 1024 / 1024).toFixed(2));
+  console.log("   Heap Used (MB):", (mem.heapUsed / 1024 / 1024).toFixed(2));
+  console.log("   Heap Total (MB):", (mem.heapTotal / 1024 / 1024).toFixed(2));
+}, 10000);
 // ----------- API Routes -----------
 app.post("/summarize", async (req, res) => {
   const { text } = req.body || {};
