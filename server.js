@@ -32,7 +32,7 @@ app.post("/summarize", async (req, res) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "meta-llama/llama-3.2-3b-instruct:free",
+        model: "deepseek/deepseek-chat-v3-0324:free",
         messages: [
           {
             role: "system",
@@ -75,7 +75,7 @@ app.post("/api/categorize", async (req, res) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "meta-llama/llama-3.2-3b-instruct:free",
+        model: "deepseek/deepseek-chat-v3-0324:free",
         messages: [
           {
             role: "system",
